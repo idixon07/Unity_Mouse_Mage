@@ -1,0 +1,958 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Unity Mini Project — Mouse Mage Arena — Interactive Lesson + Teacher Unlock</title>
+  <style>
+    :root{
+      --bg:#0b1220; --card:#121b33; --line:#223055;
+      --text:#eaf1ff; --muted:#9bb0d8; --accent:#66d9ff;
+      --ok:#2ee59d; --bad:#ff5a7a; --warn:#ffd166;
+      --r:16px;
+    }
+    *{ box-sizing:border-box; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    body{ margin:0; background: linear-gradient(180deg,#070c16,#0b1220); color:var(--text); }
+    header{ max-width:1040px; margin:0 auto; padding:18px 14px; }
+    h1{ margin:0 0 6px; font-size:20px; }
+    p{ margin:0; color:var(--muted); line-height:1.45; }
+    main{ max-width:1040px; margin:0 auto; padding:0 14px 26px; display:grid; gap:12px; }
+
+    .card{ border:1px solid var(--line); border-radius:var(--r); background: rgba(255,255,255,.03); overflow:hidden; }
+    .hd{
+      padding:12px 12px; border-bottom:1px solid var(--line);
+      background: rgba(255,255,255,.02);
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+    }
+    .title{ font-weight:900; }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 10px; border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      color:var(--muted); font-size:12px; white-space:nowrap;
+    }
+    .pill b{ color:var(--text); }
+    .bd{ padding:12px; }
+    .step{ border:1px solid var(--line); border-radius:14px; background: rgba(0,0,0,.16); padding:12px; }
+    .step h2{ margin:0 0 8px; font-size:16px; }
+    .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+
+    .btn{
+      appearance:none; border:1px solid var(--line);
+      background: rgba(102,217,255,.10);
+      color:var(--text); padding:10px 12px; border-radius:12px;
+      font-weight:800; cursor:pointer;
+    }
+    .btn:hover{ background: rgba(102,217,255,.14); }
+    .btn.secondary{ background: rgba(255,255,255,.05); }
+    .btn.good{ background: rgba(46,229,157,.12); }
+    .btn.bad{ background: rgba(255,90,122,.12); }
+
+    .list{ margin:10px 0 0; padding:0; display:grid; gap:8px; }
+    .li{
+      display:flex; gap:10px; align-items:flex-start;
+      padding:10px; border-radius:12px;
+      border:1px solid var(--line); background: rgba(255,255,255,.02);
+    }
+    .li input{ margin-top:2px; }
+    .li .t{ font-weight:900; }
+    .li .s{ color:var(--muted); font-size:12px; line-height:1.35; margin-top:2px; }
+
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color:var(--muted); font-size:12px; }
+
+    textarea{
+      width:100%; min-height:560px; resize:vertical;
+      padding:12px; border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.22);
+      color: var(--text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size:12px; line-height:1.45;
+      outline:none;
+      tab-size:2;
+    }
+    textarea[readonly]{ caret-color: transparent; }
+
+    .hint{ color:var(--muted); font-size:12px; line-height:1.45; }
+    .status{
+      margin-top:10px;
+      padding:10px 12px; border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+    }
+    .status.ok{ border-color: rgba(46,229,157,.35); background: rgba(46,229,157,.06); }
+    .status.bad{ border-color: rgba(255,90,122,.35); background: rgba(255,90,122,.06); }
+    .status .top{ font-weight:900; }
+    .status .msg{ margin-top:4px; color:var(--muted); font-size:12px; line-height:1.35; }
+
+    .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+    @media (max-width: 900px){ .grid2{ grid-template-columns:1fr; } }
+
+    input[type="text"], input[type="password"]{
+      width:100%; padding:10px 10px; border-radius:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.22);
+      color: var(--text);
+      outline:none;
+    }
+
+    .small{ font-size:12px; color:var(--muted); }
+    .bar{ height:10px; border-radius:999px; border:1px solid var(--line); background: rgba(255,255,255,.05); overflow:hidden; }
+    .bar > div{ height:100%; width:0%; background: rgba(46,229,157,.65); }
+
+    .tagRow{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+    .tag{
+      font-size:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      color:var(--muted);
+      border-radius:999px;
+      padding:6px 10px;
+    }
+    .tag b{ color: var(--text); }
+
+    details{
+      border:1px solid var(--line);
+      border-radius:14px;
+      background: rgba(0,0,0,.16);
+      padding:10px 12px;
+      margin-top:10px;
+    }
+    details summary{ cursor:pointer; font-weight:900; color:var(--text); }
+
+    .callout{
+      border:1px solid rgba(102,217,255,.28);
+      background: rgba(102,217,255,.06);
+      border-radius:14px;
+      padding:10px 12px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.55;
+    }
+
+    .unlock{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.02);
+      border-radius:14px;
+      padding:10px;
+      margin-top:10px;
+    }
+    .unlockTop{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      cursor:pointer; user-select:none;
+    }
+    .unlockTitle{ font-weight:900; display:flex; align-items:center; gap:8px; }
+    .lockDot{
+      width:10px; height:10px; border-radius:999px;
+      background: var(--warn);
+      box-shadow: 0 0 0 4px rgba(255,209,102,.12);
+    }
+    .unlockBody{ margin-top:10px; display:none; }
+    .unlockBody.show{ display:block; }
+    .modePill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      color:var(--muted); font-size:12px;
+    }
+    .modePill b{ color:var(--text); }
+    .hr{ height:1px; background: var(--line); margin:10px 0; opacity:.8; }
+  </style>
+</head>
+
+<body>
+<header>
+  <h1>Unity Mini Project — “Mouse Mage Arena”</h1>
+  <p>
+    Aim with the mouse and cast spells using <b>mouse button inputs</b>:
+    <b>LMB (0)</b> charge + release to fire, <b>RMB (1)</b> hold to block, <b>MMB (2)</b> ping a target.
+    You’ll also use <b>arrays</b> (spawn points), a <b>list</b> (alive enemies), a <b>dictionary</b> (spell counts),
+    <b>return types</b>, <b>properties</b>, <b>Rigidbody</b>, and an <b>Animator state machine</b> driven by
+    <b>SetFloat</b> / <b>SetBool</b> / <b>SetTrigger</b>.
+  </p>
+
+  <div class="tagRow">
+    <div class="tag"><b>Inputs:</b> GetMouseButtonDown(0/1/2) • GetMouseButton • GetMouseButtonUp</div>
+    <div class="tag"><b>Data:</b> Transform[] • List&lt;EnemyDummy&gt; • Dictionary&lt;string,int&gt;</div>
+    <div class="tag"><b>Anim:</b> Aim(float) • IsBlocking(bool) • Cast(trigger) • Hurt(trigger)</div>
+    <div class="tag"><b>Physics:</b> Rigidbody projectile impulse</div>
+  </div>
+
+  <div class="callout" style="margin-top:10px;">
+    <b>Controls (must work):</b>
+    <br>• <b>LMB Down (0)</b> starts charging
+    <br>• <b>LMB Held (0)</b> increases charge bar (time-based)
+    <br>• <b>LMB Up (0)</b> fires a projectile (impulse scales with charge) + <span class="mono">anim.SetTrigger("Cast")</span>
+    <br>• <b>RMB Held (1)</b> blocks + <span class="mono">anim.SetBool("IsBlocking", true)</span>
+    <br>• <b>RMB Up (1)</b> stops block
+    <br>• <b>MMB Down (2)</b> pings target (raycast) + logs info
+    <div class="hr"></div>
+    <b>Animator Parameters (exact spelling):</b>
+    <br>• <span class="mono">Aim</span> (Float) 0..1
+    <br>• <span class="mono">IsBlocking</span> (Bool)
+    <br>• <span class="mono">Cast</span> (Trigger)
+    <br>• <span class="mono">Hurt</span> (Trigger)
+  </div>
+</header>
+
+<main>
+  <div class="card">
+    <div class="hd">
+      <div class="title">Student Info</div>
+      <div class="pill">Progress: <b id="pct">0%</b> • Steps done: <b id="done">0</b>/8</div>
+    </div>
+    <div class="bd">
+      <div class="grid2">
+        <div><div class="small">Student Name</div><input id="name" type="text" placeholder="Type your name" /></div>
+        <div><div class="small">Date</div><input id="date" type="text" placeholder="e.g., Feb 4, 2026" /></div>
+      </div>
+      <div style="margin-top:10px;" class="bar"><div id="bar"></div></div>
+      <div class="hint" style="margin-top:8px;">
+        Tip: If clicks aren’t detected, click inside the Game view once to focus it.
+      </div>
+    </div>
+  </div>
+
+  <div class="card"><div class="hd"><div class="title">Step 1 — Project Setup</div><div class="pill"><b>5 min</b></div></div>
+    <div class="bd"><div class="step">
+      <h2>Create the project</h2>
+      <div class="list">
+        <div class="li"><input class="cb s1" type="checkbox" /><div><div class="t">New 3D project</div><div class="s">Name: <span class="mono">MouseMageArena</span></div></div></div>
+        <div class="li"><input class="cb s1" type="checkbox" /><div><div class="t">Save scene</div><div class="s">Scene: <span class="mono">MageLab</span></div></div></div>
+        <div class="li"><input class="cb s1" type="checkbox" /><div><div class="t">Folders</div><div class="s">Scripts, Prefabs, Materials, Animations</div></div></div>
+      </div>
+      <div class="row" style="margin-top:10px;"><button class="btn good" id="mark1">Mark Step 1 Complete</button></div>
+      <div id="st1"></div>
+    </div></div>
+  </div>
+
+  <div class="card"><div class="hd"><div class="title">Step 2 — Arena + Player</div><div class="pill"><b>10 min</b></div></div>
+    <div class="bd"><div class="step">
+      <h2>Build the player and aim point</h2>
+      <div class="list">
+        <div class="li"><input class="cb s2" type="checkbox" /><div><div class="t">Ground</div><div class="s">Plane named <span class="mono">Ground</span>.</div></div></div>
+        <div class="li"><input class="cb s2" type="checkbox" /><div><div class="t">Player</div><div class="s">Capsule named <span class="mono">Player</span> at (0,1,0). Add Rigidbody. Freeze Rot X+Z.</div></div></div>
+        <div class="li"><input class="cb s2" type="checkbox" /><div><div class="t">CastPoint</div><div class="s">Empty child in front named <span class="mono">CastPoint</span>.</div></div></div>
+        <div class="li"><input class="cb s2" type="checkbox" /><div><div class="t">Camera</div><div class="s">Position so you can see the arena. (Top-down or 3rd person is fine.)</div></div></div>
+      </div>
+      <details><summary>Quick focus fix</summary>
+        <div class="hint" style="margin-top:10px;">
+          In Play Mode, click the Game view once. Unity only receives mouse input when the Game view has focus.
+        </div>
+      </details>
+      <div class="row" style="margin-top:10px;"><button class="btn good" id="mark2">Mark Step 2 Complete</button></div>
+      <div id="st2"></div>
+    </div></div>
+  </div>
+
+  <div class="card"><div class="hd"><div class="title">Step 3 — Prefabs</div><div class="pill"><b>12 min</b></div></div>
+    <div class="bd"><div class="step">
+      <h2>Create projectile + dummy enemy</h2>
+      <div class="callout">
+        You will fire a Rigidbody projectile on LMB Up.
+        Your projectile script will use a <b>dictionary</b> to count spells fired.
+      </div>
+      <div class="list">
+        <div class="li"><input class="cb s3" type="checkbox" /><div><div class="t">Projectile prefab</div><div class="s">Sphere named <span class="mono">Bolt</span>. Add Rigidbody + Collider. Prefab it.</div></div></div>
+        <div class="li"><input class="cb s3" type="checkbox" /><div><div class="t">EnemyDummy prefab</div><div class="s">Cube named <span class="mono">EnemyDummy</span>. Add Collider. Tag it <span class="mono">Enemy</span>. Prefab it.</div></div></div>
+        <div class="li"><input class="cb s3" type="checkbox" /><div><div class="t">Spawn points (ARRAY)</div><div class="s">Create 5 empties around arena: <span class="mono">SP_0..SP_4</span>.</div></div></div>
+      </div>
+      <div class="row" style="margin-top:10px;"><button class="btn good" id="mark3">Mark Step 3 Complete</button></div>
+      <div id="st3"></div>
+    </div></div>
+  </div>
+
+  <div class="card"><div class="hd"><div class="title">Step 4 — Spawn + Data Structures</div><div class="pill"><b>10 min</b></div></div>
+    <div class="bd"><div class="step">
+      <h2>Enemies list + spawn array</h2>
+      <div class="callout">
+        Your player script will spawn 3 dummies from the <span class="mono">Transform[]</span> array and track them in a <span class="mono">List&lt;EnemyDummy&gt;</span>.
+      </div>
+      <div class="list">
+        <div class="li"><input class="cb s4" type="checkbox" /><div><div class="t">Add tag</div><div class="s">Create tag <span class="mono">Enemy</span> (if not already).</div></div></div>
+        <div class="li"><input class="cb s4" type="checkbox" /><div><div class="t">Place 3 dummies</div><div class="s">Either place them manually OR let the script auto-spawn (Teacher mode does it).</div></div></div>
+      </div>
+      <div class="row" style="margin-top:10px;"><button class="btn good" id="mark4">Mark Step 4 Complete</button></div>
+      <div id="st4"></div>
+    </div></div>
+  </div>
+
+  <div class="card"><div class="hd"><div class="title">Step 5 — Scripts (Student + Teacher Unlock)</div><div class="pill"><span class="modePill">Mode: <b id="modeLabel">Student</b></span></div></div>
+    <div class="bd"><div class="step">
+      <h2>Create 3 scripts and paste code</h2>
+      <div class="callout">
+        <b>Create these scripts:</b>
+        <br>1) <span class="mono">MouseMagePlayer.cs</span> (goes on Player)
+        <br>2) <span class="mono">Bolt.cs</span> (goes on Bolt prefab)
+        <br>3) <span class="mono">EnemyDummy.cs</span> (goes on EnemyDummy prefab)
+      </div>
+
+      <div class="row" style="justify-content:space-between; margin-top:10px;">
+        <div class="row">
+          <button class="btn" id="copyScript">Copy Script in Box</button>
+          <button class="btn secondary" id="selectAll">Select All</button>
+          <button class="btn secondary" id="downloadTxt">Download .txt</button>
+          <button class="btn secondary" id="checkKeywords">Quick Script Check</button>
+        </div>
+        <span class="modePill">Mode: <b id="modeLabel2">Student</b></span>
+      </div>
+
+      <div class="unlock" id="unlockPanel">
+        <div class="unlockTop" id="unlockTop">
+          <div class="unlockTitle"><span class="lockDot" id="lockDot"></span> Teacher Unlock</div>
+          <div class="hint" id="unlockHint">Click to expand</div>
+        </div>
+        <div class="unlockBody" id="unlockBody">
+          <div class="grid2">
+            <div>
+              <div class="small">Teacher Password</div>
+              <input id="pw" type="password" placeholder="Enter password" />
+              <label class="hint" style="display:flex; gap:8px; align-items:center; margin-top:8px;">
+                <input id="showPw" type="checkbox" /> Show password
+              </label>
+            </div>
+            <div>
+              <div class="small">Actions</div>
+              <div class="row">
+                <button class="btn good" id="unlockBtn">Unlock Teacher Mode</button>
+                <button class="btn bad" id="relockBtn" style="display:none;">Re-lock Student Mode</button>
+              </div>
+            </div>
+          </div>
+          <div id="unlockStatus"></div>
+        </div>
+      </div>
+
+      <textarea id="code" readonly spellcheck="false" style="margin-top:10px;"></textarea>
+      <div id="copyStatus"></div>
+
+      <details>
+        <summary>Required input checks (must be in your script)</summary>
+        <div class="hint" style="margin-top:10px;">
+          <ul>
+            <li><span class="mono">Input.GetMouseButtonDown(0)</span> start charge</li>
+            <li><span class="mono">Input.GetMouseButton(0)</span> continue charging</li>
+            <li><span class="mono">Input.GetMouseButtonUp(0)</span> fire projectile</li>
+            <li><span class="mono">Input.GetMouseButton(1)</span> blocking ON</li>
+            <li><span class="mono">Input.GetMouseButtonUp(1)</span> blocking OFF</li>
+            <li><span class="mono">Input.GetMouseButtonDown(2)</span> ping target (raycast)</li>
+          </ul>
+        </div>
+      </details>
+
+      <div class="row" style="margin-top:10px;"><button class="btn good" id="mark5">Mark Step 5 Complete</button></div>
+      <div id="st5"></div>
+    </div></div>
+  </div>
+
+  <div class="card"><div class="hd"><div class="title">Step 6 — Animator State Machine</div><div class="pill"><b>12 min</b></div></div>
+    <div class="bd"><div class="step">
+      <h2>Animator parameters + transitions</h2>
+      <div class="callout">
+        Create <span class="mono">MouseMageAC</span> and assign to Player Animator.
+        Use <span class="mono">Aim</span> to blend idle/aim, <span class="mono">IsBlocking</span> to enter block,
+        and <span class="mono">Cast</span> / <span class="mono">Hurt</span> triggers for one-shot animations.
+      </div>
+      <div class="list">
+        <div class="li"><input class="cb s6" type="checkbox" /><div><div class="t">Animator Controller</div><div class="s">Create and assign <span class="mono">MouseMageAC</span>.</div></div></div>
+        <div class="li"><input class="cb s6" type="checkbox" /><div><div class="t">Add parameters</div><div class="s">Aim (Float), IsBlocking (Bool), Cast (Trigger), Hurt (Trigger).</div></div></div>
+        <div class="li"><input class="cb s6" type="checkbox" /><div><div class="t">Transitions</div><div class="s">Idle↔Aim by Aim; AnyState→Cast by trigger; AnyState→Hurt by trigger; Block by IsBlocking.</div></div></div>
+      </div>
+      <div class="row" style="margin-top:10px;"><button class="btn good" id="mark6">Mark Step 6 Complete</button></div>
+      <div id="st6"></div>
+    </div></div>
+  </div>
+
+  <div class="card"><div class="hd"><div class="title">Step 7 — Wiring + Test</div><div class="pill"><b>10 min</b></div></div>
+    <div class="bd"><div class="step">
+      <h2>Assign fields and test inputs</h2>
+      <div class="list">
+        <div class="li"><input class="cb s7" type="checkbox" /><div><div class="t">Assign references</div><div class="s">Player script: rb, anim, castPoint, boltPrefab, enemyPrefab, spawnPoints array.</div></div></div>
+        <div class="li"><input class="cb s7" type="checkbox" /><div><div class="t">Press Play + focus Game view</div><div class="s">Click Game view once.</div></div></div>
+        <div class="li"><input class="cb s7" type="checkbox" /><div><div class="t">LMB Down/Hold/Up</div><div class="s">Charge then release to fire. Check Console logs.</div></div></div>
+        <div class="li"><input class="cb s7" type="checkbox" /><div><div class="t">RMB Hold/Up</div><div class="s">Blocking toggles on while held.</div></div></div>
+        <div class="li"><input class="cb s7" type="checkbox" /><div><div class="t">MMB Down</div><div class="s">Ping a target (raycast) → logs hit name/tag.</div></div></div>
+      </div>
+      <details><summary>If ping doesn't hit</summary>
+        <div class="hint" style="margin-top:10px;">
+          Ensure your camera has a clear line of sight and that enemies have colliders.
+        </div>
+      </details>
+      <div class="row" style="margin-top:10px;"><button class="btn good" id="mark7">Mark Step 7 Complete</button></div>
+      <div id="st7"></div>
+    </div></div>
+  </div>
+
+  <div class="card"><div class="hd"><div class="title">Step 8 — Submit</div><div class="pill"><b>Required</b></div></div>
+    <div class="bd"><div class="step">
+      <div class="list">
+        <div class="li"><input class="cb s8" type="checkbox" /><div><div class="t">Proof</div><div class="s">Screenshot + short reflection.</div></div></div>
+      </div>
+      <div class="grid2" style="margin-top:10px;">
+        <div><div class="small">Reflection</div><textarea id="reflection" style="min-height:140px;"></textarea></div>
+        <div>
+          <div class="small">Submission</div>
+          <div class="row" style="margin-top:8px;">
+            <button class="btn" id="copySubmission">Copy Submission</button>
+            <button class="btn bad" id="resetPage">Reset Page</button>
+          </div>
+          <div id="submitStatus"></div>
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px;"><button class="btn good" id="mark8">Mark Step 8 Complete</button></div>
+      <div id="st8"></div>
+    </div></div>
+  </div>
+</main>
+
+<script>
+  const TEACHER_PASSWORD = "RHS2026";
+
+  const FULL = `// ==================================
+// MouseMagePlayer.cs (Teacher Solution)
+// ==================================
+using System.Collections.Generic;
+using UnityEngine;
+
+public class MouseMagePlayer : MonoBehaviour
+{
+    [Header("Refs")]
+    [SerializeField] private Rigidbody rb;
+    [SerializeField] private Animator anim;
+    [SerializeField] private Transform castPoint;
+
+    [Header("Prefabs + Spawns")]
+    [SerializeField] private Bolt boltPrefab;
+    [SerializeField] private EnemyDummy enemyPrefab;
+    [SerializeField] private Transform[] spawnPoints; // ARRAY
+
+    [Header("Charge + Fire")]
+    [SerializeField] private float maxCharge = 1.25f;
+    [SerializeField] private float chargeRate = 1.0f;
+    [SerializeField] private float minForce = 6f;
+    [SerializeField] private float maxForce = 16f;
+
+    [Header("Aim")]
+    [SerializeField] private float turnSpeed = 720f;
+
+    // Properties
+    public int ShotsFired { get; private set; } = 0;
+    public bool IsBlocking { get; private set; } = false;
+
+    // Data structures
+    private readonly List<EnemyDummy> alive = new List<EnemyDummy>(); // LIST
+    private readonly Dictionary<string, int> spellCounts = new Dictionary<string, int>(); // DICT
+
+    private float charge = 0f;
+    private bool charging = false;
+
+    void Awake()
+    {
+        if (rb == null) rb = GetComponent<Rigidbody>();
+        if (anim == null) anim = GetComponentInChildren<Animator>();
+
+        spellCounts["Bolt"] = 0;
+    }
+
+    void Start()
+    {
+        AutoSpawnEnemies(3);
+        Debug.Log("MouseMage ready. Focus Game view to receive mouse input.");
+    }
+
+    void Update()
+    {
+        AimToMouse();
+
+        // LMB: Down/Hold/Up (0)
+        if (Input.GetMouseButtonDown(0))
+        {
+            charging = true;
+            charge = 0f;
+        }
+
+        if (Input.GetMouseButton(0) && charging)
+        {
+            charge = Mathf.Clamp(charge + chargeRate * Time.deltaTime, 0f, maxCharge);
+            anim.SetFloat("Aim", Charge01()); // SetFloat
+        }
+
+        if (Input.GetMouseButtonUp(0) && charging)
+        {
+            charging = false;
+            FireBolt();
+            anim.SetFloat("Aim", 0f);
+        }
+
+        // RMB: Hold/Up (1)
+        if (Input.GetMouseButton(1))
+        {
+            if (!IsBlocking)
+            {
+                IsBlocking = true;
+                anim.SetBool("IsBlocking", true); // SetBool
+            }
+        }
+        if (Input.GetMouseButtonUp(1))
+        {
+            IsBlocking = false;
+            anim.SetBool("IsBlocking", false);
+        }
+
+        // MMB: Ping (2)
+        if (Input.GetMouseButtonDown(2))
+        {
+            PingTarget();
+        }
+    }
+
+    // Return type float
+    float Charge01()
+    {
+        return maxCharge <= 0f ? 0f : Mathf.Clamp01(charge / maxCharge);
+    }
+
+    void FireBolt()
+    {
+        if (boltPrefab == null || castPoint == null) return;
+
+        float t = Charge01();
+        float force = Mathf.Lerp(minForce, maxForce, t);
+
+        Bolt b = Instantiate(boltPrefab, castPoint.position, castPoint.rotation);
+        b.Launch(castPoint.forward, force);
+
+        ShotsFired = AddShots(1);
+        IncrementSpell("Bolt", 1);
+
+        anim.SetTrigger("Cast"); // SetTrigger
+        Debug.Log($"Fired bolt. Charge={t:0.00} Force={force:0.0} ShotsFired={ShotsFired} BoltCount={spellCounts["Bolt"]}");
+    }
+
+    // Return type int
+    int AddShots(int amount)
+    {
+        ShotsFired += amount;
+        return ShotsFired;
+    }
+
+    void IncrementSpell(string key, int amt)
+    {
+        if (!spellCounts.ContainsKey(key)) spellCounts[key] = 0;
+        spellCounts[key] += amt;
+    }
+
+    void AimToMouse()
+    {
+        Camera cam = Camera.main;
+        if (cam == null) return;
+
+        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+        Plane plane = new Plane(Vector3.up, Vector3.zero);
+
+        if (plane.Raycast(ray, out float dist))
+        {
+            Vector3 hit = ray.GetPoint(dist);
+            Vector3 dir = hit - transform.position;
+            dir.y = 0f;
+
+            if (dir.sqrMagnitude > 0.001f)
+            {
+                Quaternion target = Quaternion.LookRotation(dir.normalized, Vector3.up);
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, target, turnSpeed * Time.deltaTime);
+            }
+        }
+    }
+
+    // Return type bool
+    bool HasAnyEnemies()
+    {
+        alive.RemoveAll(e => e == null);
+        return alive.Count > 0;
+    }
+
+    void AutoSpawnEnemies(int count)
+    {
+        if (enemyPrefab == null || spawnPoints == null || spawnPoints.Length == 0) return;
+
+        alive.Clear();
+        int spawned = 0;
+
+        for (int i = 0; i < spawnPoints.Length && spawned < count; i++)
+        {
+            Transform sp = spawnPoints[i];
+            if (sp == null) continue;
+
+            EnemyDummy e = Instantiate(enemyPrefab, sp.position, Quaternion.identity);
+            alive.Add(e);
+            spawned++;
+        }
+
+        Debug.Log($"Spawned {spawned} enemies. HasAnyEnemies={HasAnyEnemies()}");
+    }
+
+    void PingTarget()
+    {
+        Camera cam = Camera.main;
+        if (cam == null) return;
+
+        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit, 200f))
+        {
+            Debug.Log($"PING: hit {hit.collider.name} (tag={hit.collider.tag})");
+
+            if (hit.collider.CompareTag("Enemy") && !IsBlocking)
+            {
+                anim.SetTrigger("Hurt"); // demo trigger
+            }
+        }
+        else
+        {
+            Debug.Log("PING: no hit");
+        }
+    }
+}
+
+// ==================================
+// Bolt.cs (Teacher Solution)
+// ==================================
+using UnityEngine;
+
+public class Bolt : MonoBehaviour
+{
+    [SerializeField] private Rigidbody rb;
+    [SerializeField] private float life = 4f;
+
+    void Awake()
+    {
+        if (rb == null) rb = GetComponent<Rigidbody>();
+    }
+
+    public void Launch(Vector3 dir, float force)
+    {
+        if (rb == null) return;
+        rb.AddForce(dir.normalized * force, ForceMode.Impulse);
+        Destroy(gameObject, life);
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.collider.CompareTag("Enemy"))
+        {
+            EnemyDummy e = collision.collider.GetComponent<EnemyDummy>();
+            if (e != null) e.TakeHit(1);
+        }
+        Destroy(gameObject);
+    }
+}
+
+// ==================================
+// EnemyDummy.cs (Teacher Solution)
+// ==================================
+using UnityEngine;
+
+public class EnemyDummy : MonoBehaviour
+{
+    [SerializeField] private int hp = 2;
+
+    // Return type bool
+    public bool TakeHit(int dmg)
+    {
+        hp -= dmg;
+        if (hp <= 0)
+        {
+            Destroy(gameObject);
+            return true;
+        }
+        return false;
+    }
+}`;
+
+  const STUDENT = `// ==================================
+// MouseMagePlayer.cs (Student)
+// ==================================
+using System.Collections.Generic;
+using UnityEngine;
+
+public class MouseMagePlayer : MonoBehaviour
+{
+    [SerializeField] private Rigidbody rb;
+    [SerializeField] private Animator anim;
+    [SerializeField] private Transform castPoint;
+
+    [SerializeField] private Bolt boltPrefab;
+    [SerializeField] private EnemyDummy enemyPrefab;
+    [SerializeField] private Transform[] spawnPoints; // ARRAY
+
+    [SerializeField] private float maxCharge = 1.25f;
+    [SerializeField] private float chargeRate = 1.0f;
+    [SerializeField] private float minForce = 6f;
+    [SerializeField] private float maxForce = 16f;
+
+    [SerializeField] private float turnSpeed = 720f;
+
+    // TODO 1: Property ShotsFired (get; private set;)
+    // public int ShotsFired { get; private set; } = 0;
+
+    // TODO 2: Property IsBlocking (get; private set;)
+    // public bool IsBlocking { get; private set; } = false;
+
+    // TODO 3: List of enemies
+    // private readonly List<EnemyDummy> alive = new List<EnemyDummy>();
+
+    // TODO 4: Dictionary of spell counts
+    // private readonly Dictionary<string, int> spellCounts = new Dictionary<string, int>();
+
+    private float charge = 0f;
+    private bool charging = false;
+
+    void Awake()
+    {
+        // TODO 5: assign rb/anim if null
+        // TODO 6: init dictionary: spellCounts["Bolt"] = 0;
+    }
+
+    void Start()
+    {
+        // TODO 7: AutoSpawnEnemies(3);
+    }
+
+    void Update()
+    {
+        // TODO 8: AimToMouse();
+
+        // LMB (0)
+        // TODO 9: if GetMouseButtonDown(0) => charging=true; charge=0;
+        // TODO 10: if GetMouseButton(0) and charging => charge += rate*delta; anim.SetFloat("Aim", Charge01());
+        // TODO 11: if GetMouseButtonUp(0) and charging => charging=false; FireBolt(); anim.SetFloat("Aim",0);
+
+        // RMB (1)
+        // TODO 12: if GetMouseButton(1) => IsBlocking true + anim.SetBool("IsBlocking", true)
+        // TODO 13: if GetMouseButtonUp(1) => IsBlocking false + anim.SetBool("IsBlocking", false)
+
+        // MMB (2)
+        // TODO 14: if GetMouseButtonDown(2) => PingTarget();
+    }
+
+    // Return type float
+    float Charge01()
+    {
+        // TODO 15: return Mathf.Clamp01(charge/maxCharge)
+        return 0f;
+    }
+
+    void FireBolt()
+    {
+        // TODO 16: Instantiate bolt at castPoint, compute force from Charge01
+        // TODO 17: call bolt.Launch(forward, force)
+        // TODO 18: ShotsFired = AddShots(1);
+        // TODO 19: IncrementSpell("Bolt", 1);
+        // TODO 20: anim.SetTrigger("Cast");
+    }
+
+    // Return type int
+    int AddShots(int amount)
+    {
+        // TODO 21: ShotsFired += amount; return ShotsFired;
+        return 0;
+    }
+
+    void IncrementSpell(string key, int amt)
+    {
+        // TODO 22: if key missing, add; then += amt
+    }
+
+    void AimToMouse()
+    {
+        // TODO 23: Ray from camera to mouse; rotate player toward hit point on ground plane
+    }
+
+    // Return type bool
+    bool HasAnyEnemies()
+    {
+        // TODO 24: remove nulls; return alive.Count > 0
+        return false;
+    }
+
+    void AutoSpawnEnemies(int count)
+    {
+        // TODO 25: spawn enemies from spawnPoints array, add to alive list
+    }
+
+    void PingTarget()
+    {
+        // TODO 26: raycast from camera to mouse; log hit name/tag; optional anim trigger
+    }
+}
+
+// ==================================
+// Bolt.cs (Student)
+// ==================================
+using UnityEngine;
+
+public class Bolt : MonoBehaviour
+{
+    [SerializeField] private Rigidbody rb;
+    [SerializeField] private float life = 4f;
+
+    void Awake()
+    {
+        // TODO 27: if rb null, get component
+    }
+
+    public void Launch(Vector3 dir, float force)
+    {
+        // TODO 28: AddForce(dir*force, Impulse); Destroy after life
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        // TODO 29: if Enemy, call EnemyDummy.TakeHit(1); then Destroy bolt
+    }
+}
+
+// ==================================
+// EnemyDummy.cs (Student)
+// ==================================
+using UnityEngine;
+
+public class EnemyDummy : MonoBehaviour
+{
+    [SerializeField] private int hp = 2;
+
+    // Return type bool
+    public bool TakeHit(int dmg)
+    {
+        // TODO 30: reduce hp; if <=0 destroy return true else false
+        return false;
+    }
+}`;
+
+  const TOTAL_STEPS = 8;
+  const done = Array(TOTAL_STEPS).fill(false);
+  const byId = (id)=>document.getElementById(id);
+
+  function setStatus(elId, ok, title, msg){
+    byId(elId).innerHTML = `<div class="status ${ok ? "ok":"bad"}"><div class="top">${ok ? "✅":"❌"} ${title}</div><div class="msg">${msg}</div></div>`;
+  }
+  function requireAllChecked(sel){
+    const boxes=[...document.querySelectorAll(sel)];
+    return boxes.length>0 && boxes.every(b=>b.checked);
+  }
+  function updateProgress(){
+    const c=done.filter(Boolean).length;
+    const pct=Math.round((c/TOTAL_STEPS)*100);
+    byId("done").textContent=c;
+    byId("pct").textContent=pct+"%";
+    byId("bar").style.width=pct+"%";
+  }
+  updateProgress();
+
+  function hookMark(btnId, idx, sel, msg){
+    byId(btnId).addEventListener("click", ()=>{
+      const ok = sel ? requireAllChecked(sel) : true;
+      done[idx]=ok;
+      setStatus("st"+(idx+1), ok, "Step "+(idx+1), ok?msg:"Check all boxes first.");
+      updateProgress();
+    });
+  }
+  hookMark("mark1",0,".cb.s1","Project + scene ready.");
+  hookMark("mark2",1,".cb.s2","Player ready.");
+  hookMark("mark3",2,".cb.s3","Prefabs ready.");
+  hookMark("mark4",3,".cb.s4","Enemies setup ready.");
+  hookMark("mark5",4,null,"Scripts pasted. Finish TODOs and compile.");
+  hookMark("mark6",5,".cb.s6","Animator ready.");
+  hookMark("mark7",6,".cb.s7","Inputs tested.");
+  hookMark("mark8",7,".cb.s8","Ready to submit.");
+
+  let studentMode = true;
+  const codeBox = byId("code");
+  const modeLabel = byId("modeLabel");
+  const modeLabel2 = byId("modeLabel2");
+  const lockDot = byId("lockDot");
+  const relockBtn = byId("relockBtn");
+
+  function renderCode(){
+    codeBox.value = studentMode ? STUDENT : FULL;
+    modeLabel.textContent = studentMode ? "Student" : "Teacher";
+    modeLabel2.textContent = studentMode ? "Student" : "Teacher";
+    lockDot.style.background = studentMode ? "var(--warn)" : "var(--ok)";
+    relockBtn.style.display = studentMode ? "none" : "inline-block";
+  }
+  renderCode();
+
+  byId("unlockTop").addEventListener("click", ()=>{
+    const open = byId("unlockBody").classList.toggle("show");
+    byId("unlockHint").textContent = open ? "Click to collapse" : "Click to expand";
+  });
+  byId("showPw").addEventListener("change", ()=>{
+    byId("pw").type = byId("showPw").checked ? "text" : "password";
+  });
+  function unlockStatus(ok,msg){
+    byId("unlockStatus").innerHTML = `<div class="status ${ok ? "ok":"bad"}"><div class="top">${ok ? "✅":"❌"} ${ok ? "Unlocked":"Denied"}</div><div class="msg">${msg}</div></div>`;
+  }
+  byId("unlockBtn").addEventListener("click", ()=>{
+    if ((byId("pw").value||"") !== TEACHER_PASSWORD){ unlockStatus(false,"Incorrect password."); return; }
+    studentMode=false; renderCode(); unlockStatus(true,"Teacher Mode enabled."); byId("pw").value="";
+  });
+  relockBtn.addEventListener("click", ()=>{ studentMode=true; renderCode(); unlockStatus(true,"Re-locked."); });
+
+  function setCopyStatus(ok,title,msg){
+    byId("copyStatus").innerHTML = `<div class="status ${ok ? "ok":"bad"}"><div class="top">${ok ? "✅":"❌"} ${title}</div><div class="msg">${msg}</div></div>`;
+  }
+  byId("copyScript").addEventListener("click", async ()=>{
+    try{ await navigator.clipboard.writeText(codeBox.value); setCopyStatus(true,"Copied!","Paste into the 3 Unity scripts (replace everything)."); }
+    catch{ codeBox.focus(); codeBox.select(); setCopyStatus(false,"Clipboard blocked","Selected. Press Ctrl+C / Cmd+C."); }
+  });
+  byId("selectAll").addEventListener("click", ()=>{ codeBox.focus(); codeBox.select(); setCopyStatus(true,"Selected","Now copy with Ctrl+C / Cmd+C."); });
+
+  byId("downloadTxt").addEventListener("click", ()=>{
+    const blob = new Blob([codeBox.value], {type:"text/plain;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url; a.download = studentMode ? "MouseMageArena_StudentScripts.txt" : "MouseMageArena_TeacherScripts.txt";
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    setCopyStatus(true,"Downloaded","Text file downloaded.");
+  });
+
+  byId("checkKeywords").addEventListener("click", ()=>{
+    const t=codeBox.value;
+    const req=[
+      "GetMouseButtonDown(0)","GetMouseButton(0)","GetMouseButtonUp(0)",
+      "GetMouseButton(1)","GetMouseButtonUp(1)","GetMouseButtonDown(2)",
+      "Dictionary<","List<","Transform[]",
+      "SetFloat("Aim")","SetBool("IsBlocking")","SetTrigger("Cast")",
+      "public int ShotsFired","public bool IsBlocking",
+      "bool HasAnyEnemies","float Charge01","int AddShots",
+      "AddForce"
+    ];
+    const miss=req.filter(k=>!t.includes(k));
+    setCopyStatus(miss.length===0,"Keyword check", miss.length===0 ? (studentMode?"Looks good—finish TODOs.":"All requirements detected.") : ("Missing: "+miss.join(", ")));
+  });
+
+  byId("copySubmission").addEventListener("click", async ()=>{
+    const text =
+`Unity Mini Project — Mouse Mage Arena
+Name: ${byId("name").value||"(no name)"}
+Date: ${byId("date").value||"(no date)"}
+
+Inputs verified:
+- LMB Down/Hold/Up fires charged bolt
+- RMB Hold blocks, RMB Up stops
+- MMB Down pings with raycast
+
+Reflection:
+${byId("reflection").value||"(no reflection)"}
+
+Steps completed: ${done.filter(Boolean).length}/${TOTAL_STEPS}`;
+    try{ await navigator.clipboard.writeText(text); setStatus("submitStatus",true,"Submission copied","Paste into LMS + attach screenshots/clip."); }
+    catch{ setStatus("submitStatus",false,"Clipboard blocked","Copy manually."); }
+  });
+
+  byId("resetPage").addEventListener("click", ()=>location.reload());
+</script>
+
+</body>
+</html>
