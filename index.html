@@ -835,12 +835,15 @@ public class EnemyDummy : MonoBehaviour
   const byId = (id)=>document.getElementById(id);
 
   function setStatus(elId, ok, title, msg){
-    byId(elId).innerHTML = `<div class="status ${ok ? "ok":"bad"}"><div class="top">${ok ? "✅":"❌"} ${title}</div><div class="msg">${msg}</div></div>`;
+    byId(elId).innerHTML =
+      `<div class="status ${ok ? "ok":"bad"}"><div class="top">${ok ? "✅":"❌"} ${title}</div><div class="msg">${msg}</div></div>`;
   }
+
   function requireAllChecked(sel){
     const boxes=[...document.querySelectorAll(sel)];
     return boxes.length>0 && boxes.every(b=>b.checked);
   }
+
   function updateProgress(){
     const c=done.filter(Boolean).length;
     const pct=Math.round((c/TOTAL_STEPS)*100);
@@ -887,49 +890,86 @@ public class EnemyDummy : MonoBehaviour
     const open = byId("unlockBody").classList.toggle("show");
     byId("unlockHint").textContent = open ? "Click to collapse" : "Click to expand";
   });
+
   byId("showPw").addEventListener("change", ()=>{
     byId("pw").type = byId("showPw").checked ? "text" : "password";
   });
+
   function unlockStatus(ok,msg){
-    byId("unlockStatus").innerHTML = `<div class="status ${ok ? "ok":"bad"}"><div class="top">${ok ? "✅":"❌"} ${ok ? "Unlocked":"Denied"}</div><div class="msg">${msg}</div></div>`;
+    byId("unlockStatus").innerHTML =
+      `<div class="status ${ok ? "ok":"bad"}"><div class="top">${ok ? "✅":"❌"} ${ok ? "Unlocked":"Denied"}</div><div class="msg">${msg}</div></div>`;
   }
+
   byId("unlockBtn").addEventListener("click", ()=>{
-    if ((byId("pw").value||"") !== TEACHER_PASSWORD){ unlockStatus(false,"Incorrect password."); return; }
-    studentMode=false; renderCode(); unlockStatus(true,"Teacher Mode enabled."); byId("pw").value="";
+    if ((byId("pw").value||"") !== TEACHER_PASSWORD){
+      unlockStatus(false,"Incorrect password.");
+      return;
+    }
+    studentMode=false;
+    renderCode();
+    unlockStatus(true,"Teacher Mode enabled.");
+    byId("pw").value="";
   });
-  relockBtn.addEventListener("click", ()=>{ studentMode=true; renderCode(); unlockStatus(true,"Re-locked."); });
+
+  relockBtn.addEventListener("click", ()=>{
+    studentMode=true;
+    renderCode();
+    unlockStatus(true,"Re-locked.");
+  });
 
   function setCopyStatus(ok,title,msg){
-    byId("copyStatus").innerHTML = `<div class="status ${ok ? "ok":"bad"}"><div class="top">${ok ? "✅":"❌"} ${title}</div><div class="msg">${msg}</div></div>`;
+    byId("copyStatus").innerHTML =
+      `<div class="status ${ok ? "ok":"bad"}"><div class="top">${ok ? "✅":"❌"} ${title}</div><div class="msg">${msg}</div></div>`;
   }
+
   byId("copyScript").addEventListener("click", async ()=>{
-    try{ await navigator.clipboard.writeText(codeBox.value); setCopyStatus(true,"Copied!","Paste into the 3 Unity scripts (replace everything)."); }
-    catch{ codeBox.focus(); codeBox.select(); setCopyStatus(false,"Clipboard blocked","Selected. Press Ctrl+C / Cmd+C."); }
+    try{
+      await navigator.clipboard.writeText(codeBox.value);
+      setCopyStatus(true,"Copied!","Paste into the 3 Unity scripts (replace everything).");
+    } catch {
+      codeBox.focus(); codeBox.select();
+      setCopyStatus(false,"Clipboard blocked","Selected. Press Ctrl+C / Cmd+C.");
+    }
   });
-  byId("selectAll").addEventListener("click", ()=>{ codeBox.focus(); codeBox.select(); setCopyStatus(true,"Selected","Now copy with Ctrl+C / Cmd+C."); });
+
+  byId("selectAll").addEventListener("click", ()=>{
+    codeBox.focus(); codeBox.select();
+    setCopyStatus(true,"Selected","Now copy with Ctrl+C / Cmd+C.");
+  });
 
   byId("downloadTxt").addEventListener("click", ()=>{
     const blob = new Blob([codeBox.value], {type:"text/plain;charset=utf-8"});
     const url = URL.createObjectURL(blob);
     const a=document.createElement("a");
-    a.href=url; a.download = studentMode ? "MouseMageArena_StudentScripts.txt" : "MouseMageArena_TeacherScripts.txt";
-    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    a.href=url;
+    a.download = studentMode ? "MouseMageArena_StudentScripts.txt" : "MouseMageArena_TeacherScripts.txt";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
     setCopyStatus(true,"Downloaded","Text file downloaded.");
   });
 
+  // ✅ FIX: escaped quotes inside strings so JS doesn't crash
   byId("checkKeywords").addEventListener("click", ()=>{
     const t=codeBox.value;
     const req=[
       "GetMouseButtonDown(0)","GetMouseButton(0)","GetMouseButtonUp(0)",
       "GetMouseButton(1)","GetMouseButtonUp(1)","GetMouseButtonDown(2)",
       "Dictionary<","List<","Transform[]",
-      "SetFloat("Aim")","SetBool("IsBlocking")","SetTrigger("Cast")",
+      "SetFloat(\"Aim\")","SetBool(\"IsBlocking\")","SetTrigger(\"Cast\")",
       "public int ShotsFired","public bool IsBlocking",
       "bool HasAnyEnemies","float Charge01","int AddShots",
       "AddForce"
     ];
     const miss=req.filter(k=>!t.includes(k));
-    setCopyStatus(miss.length===0,"Keyword check", miss.length===0 ? (studentMode?"Looks good—finish TODOs.":"All requirements detected.") : ("Missing: "+miss.join(", ")));
+    setCopyStatus(
+      miss.length===0,
+      "Keyword check",
+      miss.length===0
+        ? (studentMode ? "Looks good—finish TODOs." : "All requirements detected.")
+        : ("Missing: "+miss.join(", "))
+    );
   });
 
   byId("copySubmission").addEventListener("click", async ()=>{
@@ -947,12 +987,27 @@ Reflection:
 ${byId("reflection").value||"(no reflection)"}
 
 Steps completed: ${done.filter(Boolean).length}/${TOTAL_STEPS}`;
-    try{ await navigator.clipboard.writeText(text); setStatus("submitStatus",true,"Submission copied","Paste into LMS + attach screenshots/clip."); }
-    catch{ setStatus("submitStatus",false,"Clipboard blocked","Copy manually."); }
+
+    try{
+      await navigator.clipboard.writeText(text);
+      setStatus("submitStatus",true,"Submission copied","Paste into LMS + attach screenshots/clip.");
+    } catch {
+      setStatus("submitStatus",false,"Clipboard blocked","Copy manually.");
+    }
   });
 
   byId("resetPage").addEventListener("click", ()=>location.reload());
+
+  // Optional: if anything still fails, show a visible error instead of silent break
+  window.addEventListener("error", (e)=>{
+    const box = document.getElementById("copyStatus");
+    if (box) {
+      box.innerHTML =
+        `<div class="status bad"><div class="top">❌ Page script error</div><div class="msg">${(e && e.message) ? e.message : "Unknown error"}</div></div>`;
+    }
+  });
 </script>
+
 
 </body>
 </html>
